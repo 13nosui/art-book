@@ -46,6 +46,8 @@ rules:
       exclude:
         - "src/pages/api/**"
         - "src/app/api/**"
+        - "src/lib/**"  # Exclude server-side library code
+        - "scripts/**"  # Exclude build/deployment scripts
 
   - id: localStorage-security-check
     pattern-either:
@@ -56,6 +58,38 @@ rules:
       Ensure data is properly encrypted and validated.
     languages: [typescript, javascript]
     severity: WARNING
+    paths:
+      include:
+        - "src/**/*.ts"
+        - "src/**/*.tsx"
+
+  - id: weak-crypto-detection
+    pattern-either:
+      - pattern: Math.random()
+      - pattern: Date.now()
+    message: |
+      Weak randomness detected. Use crypto.randomBytes() or crypto.getRandomValues() 
+      for security-sensitive operations.
+    languages: [typescript, javascript]
+    severity: WARNING
+    paths:
+      include:
+        - "src/**/*.ts"
+        - "src/**/*.tsx"
+      exclude:
+        - "**/*.test.*"
+        - "**/*.stories.*"
+
+  - id: sql-injection-risk
+    pattern-either:
+      - pattern: |
+          $SQL + $VAR
+      - pattern: |
+          `$SQL${$VAR}`
+    message: |
+      Potential SQL injection risk. Use parameterized queries or prepared statements.
+    languages: [typescript, javascript]
+    severity: ERROR
     paths:
       include:
         - "src/**/*.ts"
