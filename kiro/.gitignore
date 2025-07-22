@@ -1,0 +1,104 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+# .env*
+!.env.example
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+*storybook.log
+storybook-static
+postcss.config.mjs
+vite.config.ts
+.storybook/preview.ts
+.storybook/vitest.setup.ts
+
+# Security and sensitive files
+*.key
+*.cert
+*.pem
+*.p12
+*.jks
+secrets/
+.secrets/
+
+# Security reports and analysis files
+security-report.json
+env-validation-report.json
+audit-results.json
+vulnerability-report.json
+semgrep-results.json
+*-security-scan.*
+security-*.log
+
+# Temporary security files
+.semgrep/
+.security-tmp/
+.vulnerability-scan/
+
+# License check reports
+license-report.json
+license-check-results.txt
+
+# Additional sensitive patterns
+*.private
+*.confidential
+*_secret.*
+*_private.*
+*.credentials
+
+# IDE and editor files
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+Thumbs.db
+.DS_Store
+.Spotlight-V100
+.Trashes
+
+# Log files
+logs/
+*.log
+
+# Backup files
+*.bak
+*.backup

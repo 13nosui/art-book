@@ -1,0 +1,195 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    strategy:
+      matrix:
+        node-version: [20.x]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run TypeScript type checking
+      run: npm run type-check
+      
+    - name: Run ESLint (check only)
+      run: npm run lint:check
+      continue-on-error: false
+      
+    - name: Build application
+      run: npm run build
+      timeout-minutes: 10
+      
+    - name: Check for Storybook stories
+      id: check_stories
+      run: |
+        if find src -name "*.stories.*" -o -name "*.mdx" | grep -q .; then
+          echo "has_stories=true" >> $GITHUB_OUTPUT
+        else
+          echo "has_stories=false" >> $GITHUB_OUTPUT
+        fi
+      
+    - name: Run Storybook build (if stories exist)
+      if: steps.check_stories.outputs.has_stories == 'true'
+      run: npm run build-storybook
+      timeout-minutes: 5
+      continue-on-error: true
+
+  security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run comprehensive security checks
+      run: npm run security:scan
+      timeout-minutes: 10
+      
+    - name: Run security audit (strict)
+      run: npm audit --audit-level high
+      continue-on-error: false
+      timeout-minutes: 5
+      
+    - name: Check for outdated packages with security issues
+      run: |
+        echo "Checking for outdated packages..."
+        npm outdated || true
+        echo "Checking for packages with known vulnerabilities..."
+        npm audit --audit-level moderate --json > audit-results.json || true
+        if [ -s audit-results.json ]; then
+          echo "Vulnerability details:"
+          cat audit-results.json
+        fi
+      timeout-minutes: 5
+        
+    - name: Check environment variables template
+      run: |
+        if [ ! -f ".env.example" ]; then
+          echo "❌ Error: .env.example file is missing"
+          exit 1
+        fi
+        echo "✅ .env.example file exists"
+        
+        # Check for required environment variables
+        required_vars=("NEXT_PUBLIC_FIREBASE_API_KEY" "ENCRYPTION_KEY" "JWT_SECRET" "CSRF_SECRET")
+        for var in "${required_vars[@]}"; do
+          if grep -q "$var" .env.example; then
+            echo "✅ $var found in template"
+          else
+            echo "❌ $var missing from template"
+            exit 1
+          fi
+        done
+      
+    - name: Validate security headers in Next.js config
+      run: |
+        required_headers=("X-Frame-Options" "X-Content-Type-Options" "Content-Security-Policy" "Strict-Transport-Security")
+        for header in "${required_headers[@]}"; do
+          if grep -q "$header" next.config.js; then
+            echo "✅ $header configured"
+          else
+            echo "❌ $header not found in next.config.js"
+            exit 1
+          fi
+        done
+      
+    - name: Check for secrets in code
+      run: |
+        echo "Scanning for potential secrets in code..."
+        # Check for common secret patterns
+        if grep -r -E "(password|secret|key|token)\s*[:=]\s*['\"][^'\"]{8,}" src/ --exclude-dir=node_modules || true; then
+          echo "⚠️  Potential hardcoded secrets found"
+        fi
+        
+        # Check for API keys pattern
+        if grep -r -E "[A-Za-z0-9]{32,}" src/ --exclude-dir=node_modules | grep -v ".stories." | grep -v ".test." || true; then
+          echo "⚠️  Potential API keys found in source code"
+        fi
+      
+    - name: Dependency License Check
+      run: |
+        echo "Checking dependency licenses..."
+        npx license-checker --onlyAllow="MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC" --summary || echo "License check completed with warnings"
+      continue-on-error: true
+      
+    - name: Upload security report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-report
+        path: |
+          security-report.json
+          audit-results.json
+        retention-days: 30
+
+  semgrep:
+    name: "🔍 Semgrep SAST Analysis"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    container:
+      image: semgrep/semgrep
+    
+    if: github.actor != 'dependabot[bot]'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Run Semgrep SAST scan
+        run: |
+          echo "🔍 Starting Semgrep security analysis..."
+          semgrep ci \
+            --config p/security-audit \
+            --config p/typescript \
+            --config p/react \
+            --config p/owasp-top-ten \
+            --config p/javascript \
+            --config p/nextjs \
+            --config .semgrep.yml \
+            --sarif \
+            --output semgrep-results.sarif \
+            --verbose
+          echo "✅ Semgrep analysis completed"
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+        continue-on-error: false
+        timeout-minutes: 10
+        
+      - name: Upload SARIF results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: semgrep-sarif-results
+          path: semgrep-results.sarif
+          retention-days: 30
