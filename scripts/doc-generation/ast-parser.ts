@@ -308,7 +308,7 @@ export class TypeScriptASTParser {
           name: propertyName,
           type: propertyType,
           optional,
-          documentation,
+          ...(documentation && { documentation }),
         });
       }
     }
@@ -321,9 +321,9 @@ export class TypeScriptASTParser {
       name,
       filePath: sourceFile.fileName,
       properties,
-      extends: extendsTypes.length > 0 ? extendsTypes : undefined,
+      ...(extendsTypes.length > 0 && { extends: extendsTypes }),
       exported,
-      documentation,
+      ...(documentation && { documentation }),
       location: {
         line: location.line + 1,
         column: location.character + 1,
@@ -346,7 +346,7 @@ export class TypeScriptASTParser {
       filePath: sourceFile.fileName,
       definition,
       exported,
-      documentation,
+      ...(documentation && { documentation }),
       location: {
         line: location.line + 1,
         column: location.character + 1,
@@ -368,8 +368,8 @@ export class TypeScriptASTParser {
 
       members.push({
         name: memberName,
-        value: memberValue,
-        documentation,
+        ...(memberValue && { value: memberValue }),
+        ...(documentation && { documentation }),
       });
     }
 
@@ -382,7 +382,7 @@ export class TypeScriptASTParser {
       filePath: sourceFile.fileName,
       members,
       exported,
-      documentation,
+      ...(documentation && { documentation }),
       location: {
         line: location.line + 1,
         column: location.character + 1,
@@ -414,7 +414,7 @@ export class TypeScriptASTParser {
         name: paramName,
         type: paramType,
         optional,
-        defaultValue,
+        ...(defaultValue && { defaultValue }),
       });
     }
 
@@ -429,7 +429,7 @@ export class TypeScriptASTParser {
       returnType,
       exported,
       async: isAsync,
-      documentation,
+      ...(documentation && { documentation }),
       location: {
         line: location.line + 1,
         column: location.character + 1,
@@ -469,7 +469,7 @@ export class TypeScriptASTParser {
       name,
       filePath: sourceFile.fileName,
       exported,
-      documentation,
+      ...(documentation && { documentation }),
       location: {
         line: location.line + 1,
         column: location.character + 1,
@@ -503,7 +503,7 @@ export class TypeScriptASTParser {
         name: paramName,
         type: paramType,
         optional,
-        defaultValue,
+        ...(defaultValue && { defaultValue }),
       });
     }
 
@@ -518,7 +518,7 @@ export class TypeScriptASTParser {
       returnType,
       dependencies,
       exported,
-      documentation,
+      ...(documentation && { documentation }),
       location: {
         line: location.line + 1,
         column: location.character + 1,
@@ -543,7 +543,7 @@ export class TypeScriptASTParser {
     const leadingTrivia = fullText.substring(nodeStart, nodeEnd);
 
     const commentMatch = leadingTrivia.match(/\/\*\*([\s\S]*?)\*\//);
-    if (commentMatch) {
+    if (commentMatch && commentMatch[1]) {
       return commentMatch[1]
         .split("\n")
         .map((line) => line.replace(/^\s*\*\s?/, ""))
@@ -555,8 +555,8 @@ export class TypeScriptASTParser {
   }
 
   private isExported(node: ts.Node): boolean {
-    return !!node.modifiers?.some(
-      (mod) => mod.kind === ts.SyntaxKind.ExportKeyword
+    return !!(node as any).modifiers?.some(
+      (mod: any) => mod.kind === ts.SyntaxKind.ExportKeyword
     );
   }
 

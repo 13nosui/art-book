@@ -588,7 +588,10 @@ async function main() {
   // Parse project root argument
   const rootIndex = args.findIndex((arg) => arg === "--root" || arg === "-r");
   if (rootIndex !== -1 && args[rootIndex + 1]) {
-    options.projectRoot = args[rootIndex + 1];
+    const rootValue = args[rootIndex + 1];
+    if (rootValue) {
+      options.projectRoot = rootValue;
+    }
   }
 
   // Parse output directory argument
@@ -596,7 +599,10 @@ async function main() {
     (arg) => arg === "--output" || arg === "-o"
   );
   if (outputIndex !== -1 && args[outputIndex + 1]) {
-    options.outputDir = args[outputIndex + 1];
+    const outputValue = args[outputIndex + 1];
+    if (outputValue) {
+      options.outputDir = outputValue;
+    }
   }
 
   try {

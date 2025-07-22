@@ -175,6 +175,10 @@ class DocumentValidator {
       const linkText = match[1];
       const linkUrl = match[2];
 
+      if (!linkText || !linkUrl) {
+        continue;
+      }
+
       // 空のリンクテキスト
       if (!linkText.trim()) {
         result.warnings.push(`空のリンクテキスト: ${linkUrl}`);
@@ -238,10 +242,10 @@ class DocumentValidator {
     }
 
     // アンカー部分を除去
-    const [filePart] = targetPath.split("#");
+    const [filePart] = targetPath?.split("#") || [];
 
     // ファイル存在チェック
-    if (!this.existingFiles.has(filePart) && !fs.existsSync(filePart)) {
+    if (filePart && !this.existingFiles.has(filePart) && !fs.existsSync(filePart)) {
       result.errors.push(
         `内部リンクのファイルが見つかりません: ${linkUrl} -> ${filePart}`
       );
@@ -305,6 +309,10 @@ class DocumentValidator {
     while ((match = codeBlockRegex.exec(content)) !== null) {
       const language = match[1];
       const code = match[2];
+
+      if (!code) {
+        continue;
+      }
 
       // 空のコードブロック
       if (!code.trim()) {
@@ -482,6 +490,10 @@ class DocumentValidator {
       const altText = match[1];
       const imagePath = match[2];
 
+      if (!altText || !imagePath) {
+        continue;
+      }
+
       // alt属性の確認
       if (!altText.trim()) {
         result.warnings.push(`画像にalt属性がありません: ${imagePath}`);
@@ -626,4 +638,5 @@ if (require.main === module) {
   });
 }
 
-export { DocumentValidator, ValidationResult, ValidationSummary };
+export { DocumentValidator };
+export type { ValidationResult, ValidationSummary };

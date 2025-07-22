@@ -317,7 +317,7 @@ export class CodeAnalyzer {
       path: relativePath,
       fileCount,
       subdirectories,
-      purpose,
+      ...(purpose && { purpose }),
     });
   }
 
@@ -369,7 +369,9 @@ export class CodeAnalyzer {
     let match;
 
     while ((match = importRegex.exec(content)) !== null) {
-      imports.push(match[1]);
+      if (match[1]) {
+        imports.push(match[1]);
+      }
     }
 
     return imports;
@@ -382,7 +384,9 @@ export class CodeAnalyzer {
     let match;
 
     while ((match = exportRegex.exec(content)) !== null) {
-      exports.push(match[1]);
+      if (match[1]) {
+        exports.push(match[1]);
+      }
     }
 
     return exports;
