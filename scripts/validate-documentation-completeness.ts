@@ -100,9 +100,14 @@ class DocumentationCompletenessValidator {
         const description = match[2];
         const criteriaText = match[3];
 
+        // Skip if essential fields are missing
+        if (!id || !description) {
+          continue;
+        }
+
         // Extract individual criteria
         const criteriaRegex = /\d+\.\s+WHEN.+?THEN.+?SHALL.+?$/gm;
-        const criteria = criteriaText.match(criteriaRegex) || [];
+        const criteria = criteriaText?.match(criteriaRegex) || [];
 
         this.requirements.push({
           id,
@@ -244,6 +249,10 @@ class DocumentationCompletenessValidator {
           const linkText = match[1];
           const linkPath = match[2];
 
+          if (!linkPath) {
+            continue;
+          }
+
           // Skip external links and anchors
           if (linkPath.startsWith("http") || linkPath.startsWith("#")) {
             continue;
@@ -258,10 +267,10 @@ class DocumentationCompletenessValidator {
           }
 
           // Remove anchor part if present
-          const [filePart] = targetPath.split("#");
+          const [filePart] = targetPath?.split("#") || [];
 
           // Check if target file exists
-          if (!fs.existsSync(filePart)) {
+          if (filePart && !fs.existsSync(filePart)) {
             this.crossReferenceIssues.push(
               `Broken link in ${docFile}: [${linkText}](${linkPath}) -> File not found`
             );
@@ -467,4 +476,5 @@ if (require.main === module) {
   main().catch(console.error);
 }
 
-export { DocumentationCompletenessValidator, ValidationResult };
+export { DocumentationCompletenessValidator };
+export type { ValidationResult };
