@@ -1,0 +1,22 @@
+sequenceDiagram
+    participant U as User
+    participant C as Component
+    participant H as Hook
+    participant API as API Route
+    participant V as Validation
+    participant S as Security
+    participant EXT as External API
+
+    U->>C: User Interaction
+    C->>H: Call Custom Hook
+    H->>API: HTTP Request
+    API->>V: Validate Input
+    V->>S: Security Check
+    S->>API: Sanitized Data
+    API->>EXT: External API Call
+    EXT-->>API: Response
+    API->>S: Sanitize Response
+    S-->>API: Clean Data
+    API-->>H: API Response
+    H-->>C: Processed Data
+    C-->>U: Updated UI

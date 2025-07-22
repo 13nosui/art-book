@@ -1,0 +1,24 @@
+graph TB
+    subgraph "figma"
+        GET__figma__fileId["GET /figma/:fileId"]
+        GET__figma__fileId --> |blue| HandlerGET__figma__fileId[Handler]
+        HandlerGET__figma__fileId --> Auth[Authentication]
+        HandlerGET__figma__fileId --> Validation[Validation]
+        POST__figma__fileId["POST /figma/:fileId"]
+        POST__figma__fileId --> |green| HandlerPOST__figma__fileId[Handler]
+        HandlerPOST__figma__fileId --> Auth[Authentication]
+        HandlerPOST__figma__fileId --> Validation[Validation]
+        PUT__figma__fileId["PUT /figma/:fileId"]
+        PUT__figma__fileId --> |orange| HandlerPUT__figma__fileId[Handler]
+        HandlerPUT__figma__fileId --> Auth[Authentication]
+        HandlerPUT__figma__fileId --> Validation[Validation]
+        DELETE__figma__fileId["DELETE /figma/:fileId"]
+        DELETE__figma__fileId --> |red| HandlerDELETE__figma__fileId[Handler]
+        HandlerDELETE__figma__fileId --> Auth[Authentication]
+        HandlerDELETE__figma__fileId --> Validation[Validation]
+        PATCH__figma__fileId["PATCH /figma/:fileId"]
+        PATCH__figma__fileId --> |purple| HandlerPATCH__figma__fileId[Handler]
+        HandlerPATCH__figma__fileId --> Auth[Authentication]
+        HandlerPATCH__figma__fileId --> Validation[Validation]
+    end
+

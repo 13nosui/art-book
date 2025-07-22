@@ -1,0 +1,82 @@
+graph TB
+    src_types_svg_d(Type)
+    src_types_svg_d --> |red| src_types_svg_d
+    src_stories_Example_stories[Component]
+    src_stories_Example_stories --> |blue| src_stories_Example_stories
+    src_hooks_useFigmaAPI((Hook))
+    src_hooks_useFigmaAPI --> |green| src_hooks_useFigmaAPI
+    src_lib_validation{Utility}
+    src_lib_validation --> |orange| src_lib_validation
+    src_lib_security{Utility}
+    src_lib_security --> |orange| src_lib_security
+    src_lib_secure_storage{Utility}
+    src_lib_secure_storage --> |orange| src_lib_secure_storage
+    src_lib_firebase{Utility}
+    src_lib_firebase --> |orange| src_lib_firebase
+    src_lib_env{Utility}
+    src_lib_env --> |orange| src_lib_env
+    src_lib_csrf{Utility}
+    src_lib_csrf --> |orange| src_lib_csrf
+    src_lib_crypto{Utility}
+    src_lib_crypto --> |orange| src_lib_crypto
+    src_lib_cors_config{Utility}
+    src_lib_cors_config --> |orange| src_lib_cors_config
+    src_lib_auth_context[Component]
+    src_lib_auth_context --> |blue| src_lib_auth_context
+    src_lib_api_client{Utility}
+    src_lib_api_client --> |orange| src_lib_api_client
+    src_components_PomodoroTimer[Component]
+    src_components_PomodoroTimer --> |blue| src_components_PomodoroTimer
+    src_components_AuthForm[Component]
+    src_components_AuthForm --> |blue| src_components_AuthForm
+    src_app_providers[Component]
+    src_app_providers --> |blue| src_app_providers
+    src_app_page[Component]
+    src_app_page --> |blue| src_app_page
+    src_app_layout[Component]
+    src_app_layout --> |blue| src_app_layout
+    src_pages_api_figma_mcp[Component]
+    src_pages_api_figma_mcp --> |blue| src_pages_api_figma_mcp
+    src_app_api_figma__fileId__route[[Service]]
+    src_app_api_figma__fileId__route --> |purple| src_app_api_figma__fileId__route
+    tsconfig{Utility}
+    tsconfig --> |orange| tsconfig
+    tailwind_config{Utility}
+    tailwind_config --> |orange| tailwind_config
+    postcss_config{Utility}
+    postcss_config --> |orange| postcss_config
+    package{Utility}
+    package --> |orange| package
+    package_lock{Utility}
+    package_lock --> |orange| package_lock
+    next_config{Utility}
+    next_config --> |orange| next_config
+    firebase{Utility}
+    firebase --> |orange| firebase
+    cors{Utility}
+    cors --> |orange| cors
+    SECURITY{Utility}
+    SECURITY --> |orange| SECURITY
+    README{Utility}
+    README --> |orange| README
+    src_hooks_useFigmaAPI --> |import| src_lib_api_client
+    src_lib_security --> |import| src_lib_validation
+    src_lib_firebase --> |import| src_lib_env
+    src_lib_cors_config --> |import| src_lib_security
+    src_lib_auth_context --> |import| src_lib_firebase
+    src_lib_api_client --> |import| src_lib_security
+    src_lib_api_client --> |import| src_lib_env
+    src_components_AuthForm --> |import| src_lib_firebase
+    src_components_AuthForm --> |import| src_lib_validation
+    src_components_AuthForm --> |import| src_lib_security
+    src_app_providers --> |import| src_lib_auth_context
+    src_app_page --> |import| src_lib_auth_context
+    src_app_page --> |import| src_components_AuthForm
+    src_app_page --> |import| src_components_PomodoroTimer
+    src_app_layout --> |import| src_app_providers
+    src_pages_api_figma_mcp --> |import| src_lib_validation
+    src_pages_api_figma_mcp --> |import| src_lib_security
+    src_pages_api_figma_mcp --> |import| src_lib_env
+    src_app_api_figma__fileId__route --> |import| src_lib_validation
+    src_app_api_figma__fileId__route --> |import| src_lib_security
+    src_app_api_figma__fileId__route --> |import| src_lib_api_client

@@ -1,0 +1,43 @@
+graph TB
+    subgraph "lib"
+        AuthContext[AuthContext]
+        AuthProvider[AuthProvider]
+        AuthContext[AuthContext]
+        AuthProvider[AuthProvider]
+    end
+
+    subgraph "app"
+        Providers[Providers]
+        RootLayout[RootLayout]
+        HomePage[HomePage]
+        Providers[Providers]
+        RootLayout[RootLayout]
+        HomePage[HomePage]
+    end
+
+    subgraph "components"
+        AuthForm[AuthForm]
+        PomodoroTimer[PomodoroTimer]
+        AuthForm[AuthForm]
+        PomodoroTimer[PomodoroTimer]
+    end
+
+    subgraph "stories"
+        Button[Button]
+        Primary[Primary]
+        Disabled[Disabled]
+        LongText[LongText]
+        Button[Button]
+        Primary[Primary]
+        Disabled[Disabled]
+        LongText[LongText]
+    end
+
+    AuthContext --> |uses| Firebase[Firebase Auth]
+    AuthProvider --> |uses| Firebase[Firebase Auth]
+    AuthForm --> |uses| Validation[Input Validation]
+    AuthForm --> |uses| Firebase[Firebase Auth]
+    AuthContext --> |uses| Firebase[Firebase Auth]
+    AuthProvider --> |uses| Firebase[Firebase Auth]
+    AuthForm --> |uses| Validation[Input Validation]
+    AuthForm --> |uses| Firebase[Firebase Auth]

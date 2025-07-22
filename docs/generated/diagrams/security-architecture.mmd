@@ -1,0 +1,22 @@
+graph TB
+    subgraph "Security Layers"
+        Input[User Input]
+        Validation{Input Validation}
+        Sanitization[XSS Protection]
+        Authentication[Firebase Auth]
+        Authorization[Access Control]
+        Processing[Request Processing]
+    end
+
+    Input --> Validation
+    Validation -->|Valid| Sanitization
+    Validation -->|Invalid| Reject[Reject Request]
+    Sanitization --> Authentication
+    Authentication -->|Authenticated| Authorization
+    Authentication -->|Unauthenticated| Reject
+    Authorization -->|Authorized| Processing
+    Authorization -->|Unauthorized| Reject
+    validation[validation]
+    sanitization[sanitization]
+    authentication[authentication]
+    authorization[authorization]

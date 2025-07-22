@@ -1,0 +1,35 @@
+graph TB
+    subgraph "Client Layer"
+        UI[React Components]
+        Hooks[Custom Hooks]
+        Context[React Context]
+    end
+
+    subgraph "API Layer"
+        NextAPI[Next.js API Routes]
+        Middleware[Security Middleware]
+        Validation[Input Validation]
+    end
+
+    subgraph "Service Layer"
+        Auth[Authentication Service]
+        FigmaAPI[Figma API Client]
+        Security[Security Services]
+    end
+
+    subgraph "External Services"
+        Firebase[Firebase Auth/Firestore]
+        FigmaExt[Figma API]
+        Storage[Firebase Storage]
+    end
+
+    UI --> Hooks
+    Hooks --> Context
+    Context --> NextAPI
+    NextAPI --> Middleware
+    Middleware --> Validation
+    Validation --> Auth
+    Validation --> FigmaAPI
+    Auth --> Firebase
+    FigmaAPI --> FigmaExt
+    Auth --> Storage

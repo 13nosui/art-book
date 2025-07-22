@@ -1,0 +1,14 @@
+sequenceDiagram
+    participant U as User
+    participant AF as AuthForm
+    participant AC as AuthContext
+    participant FB as Firebase
+    participant SEC as Security
+
+    U->>AF: Enter credentials
+    AF->>SEC: Validate & sanitize input
+    SEC-->>AF: Validation result
+    AF->>FB: Authenticate user
+    FB-->>AF: Auth result
+    AF->>AC: Update auth state
+    AC-->>U: Redirect to dashboard
