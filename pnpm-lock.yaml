@@ -35,9 +35,6 @@ importers:
       dompurify:
         specifier: ^3.2.6
         version: 3.2.6
-      dotenv:
-        specifier: ^17.2.0
-        version: 17.2.0
       firebase:
         specifier: ^11.10.0
         version: 11.10.0
@@ -123,6 +120,9 @@ importers:
       autoprefixer:
         specifier: ^10.4.21
         version: 10.4.21(postcss@8.5.6)
+      dotenv:
+        specifier: ^17.2.0
+        version: 17.2.0
       eslint:
         specifier: 8.57.1
         version: 8.57.1
