@@ -218,6 +218,33 @@ SEMGREP_APP_TOKEN=your_actual_token_here
 npx semgrep --config=auto src/
 ```
 
+## 📘 Firebase Firestore ドキュメント構成
+
+## 🔐 環境変数の設定
+
+### ローカル開発環境
+
+1. `.env.local`ファイルを作成し、以下の環境変数を設定してください：
+
+```env
+# Firebase設定
+NEXT_PUBLIC_FIREBASE_API_KEY=your-firebase-api-key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-firebase-auth-domain
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-firebase-project-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-firebase-storage-bucket
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-firebase-messaging-sender-id
+NEXT_PUBLIC_FIREBASE_APP_ID=your-firebase-app-id
+```
+
+### 本番環境（Vercel）
+
+1. [Vercelダッシュボード](https://vercel.com)にログイン
+2. プロジェクトを選択
+3. Settings → Environment Variables
+4. 以下の環境変数を追加：
+   - すべてのFirebase設定（`NEXT_PUBLIC_FIREBASE_*`）
+   - セキュリティ関連の設定（`JWT_SECRET`、`CSRF_SECRET`など）
+
 ## 🚀 デプロイ
 
 ### Vercel への自動デプロイ
