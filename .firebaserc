@@ -1,7 +1,6 @@
 {
   "projects": {
-    "default": "art-book",
-    "staging": "art-book-315cb"
+    "default": "art-book-315cb"
   },
   "targets": {},
   "etags": {}
