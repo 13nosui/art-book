@@ -1,7 +1,7 @@
 {
   "projects": {
-    "default": "ai-development-template-heroui-nextjs-nine",
-    "staging": "art-book-80047"
+    "default": "art-book",
+    "staging": "art-book-315cb"
   },
   "targets": {},
   "etags": {}
