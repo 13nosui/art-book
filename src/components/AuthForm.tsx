@@ -89,7 +89,16 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
       if (result.success) {
         onSuccess?.();
       } else {
-        setError(result.error || "Google認証に失敗しました");
+        // より詳細なエラーメッセージを表示
+        if (result.code === 'auth/internal-error') {
+          setError("Google認証の設定に問題があります。管理者にお問い合わせください。");
+        } else if (result.code === 'auth/popup-closed-by-user') {
+          setError("認証がキャンセルされました。");
+        } else if (result.code === 'auth/popup-blocked') {
+          setError("ポップアップがブロックされました。ブラウザの設定を確認してください。");
+        } else {
+          setError(result.error || "Google認証に失敗しました");
+        }
       }
     } catch {
       setError("Google認証に失敗しました");
