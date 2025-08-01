@@ -1,0 +1,21 @@
+{
+  "functions": {
+    "src/**/*.{js,ts,tsx}": {
+      "runtime": "@vercel/node@3"
+    }
+  },
+  "buildCommand": "pnpm run build",
+  "outputDirectory": "dist",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./",
+  "build": {
+    "env": {
+      "NEXT_TELEMETRY_DISABLED": "1"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/"
+    }
+  ]
+}
