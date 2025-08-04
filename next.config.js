@@ -41,6 +41,10 @@ const nextConfig = {
             value: "max-age=31536000; includeSubDomains",
           },
           {
+            key: "Cross-Origin-Opener-Policy",
+            value: "same-origin-allow-popups",
+          },
+          {
             key: "Content-Security-Policy",
             value:
               "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://accounts.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://firebasestorage.googleapis.com https://www.figma.com; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://api.figma.com https://accounts.google.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; frame-src 'self' https://accounts.google.com; upgrade-insecure-requests;",
