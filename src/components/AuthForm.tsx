@@ -5,7 +5,11 @@ import { Button } from "@heroui/react";
 import { Input } from "@heroui/react";
 import { Card, CardBody, CardHeader } from "@heroui/react";
 import { Divider } from "@heroui/react";
-import { registerWithEmail, loginWithEmail, signInWithGoogle } from "../lib/firebase";
+import {
+  registerWithEmail,
+  loginWithEmail,
+  signInWithGoogle,
+} from "../lib/firebase";
 import { validators, ValidationError } from "../lib/validation";
 import { security } from "../lib/security";
 
@@ -20,7 +24,9 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
+  const [validationErrors, setValidationErrors] = useState<ValidationError[]>(
+    []
+  );
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,11 +35,11 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
     setValidationErrors([]);
 
     // 入力値のバリデーション
-    const formData = isLogin 
+    const formData = isLogin
       ? { email, password }
       : { email, password, confirmPassword };
 
-    const validationResult = isLogin 
+    const validationResult = isLogin
       ? validators.loginForm(formData)
       : validators.registerForm(formData);
 
@@ -49,11 +55,11 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
 
     if (!emailCheck.isValid || !passwordCheck.isValid) {
       security.logger.logSecurityEvent({
-        type: 'XSS_ATTEMPT',
+        type: "XSS_ATTEMPT",
         input: `email: ${email}`,
         userAgent: navigator.userAgent,
       });
-      
+
       setError("入力値にセキュリティ上の問題があります");
       setLoading(false);
       return;
@@ -63,7 +69,7 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
     const sanitizedPassword = passwordCheck.sanitized!;
 
     try {
-      const result = isLogin 
+      const result = isLogin
         ? await loginWithEmail(sanitizedEmail, sanitizedPassword)
         : await registerWithEmail(sanitizedEmail, sanitizedPassword);
 
@@ -85,22 +91,32 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
     setValidationErrors([]);
 
     try {
+      console.log("Google認証開始"); // ← 追加
       const result = await signInWithGoogle();
+      console.log("認証結果:", result); // ← 追加
+
       if (result.success) {
+        console.log("認証成功、onSuccessを呼び出し"); // ← 追加
         onSuccess?.();
       } else {
+        console.log("認証失敗:", result.code, result.error); // ← 追加
         // より詳細なエラーメッセージを表示
-        if (result.code === 'auth/internal-error') {
-          setError("Google認証の設定に問題があります。管理者にお問い合わせください。");
-        } else if (result.code === 'auth/popup-closed-by-user') {
+        if (result.code === "auth/internal-error") {
+          setError(
+            "Google認証の設定に問題があります。管理者にお問い合わせください。"
+          );
+        } else if (result.code === "auth/popup-closed-by-user") {
           setError("認証がキャンセルされました。");
-        } else if (result.code === 'auth/popup-blocked') {
-          setError("ポップアップがブロックされました。ブラウザの設定を確認してください。");
+        } else if (result.code === "auth/popup-blocked") {
+          setError(
+            "ポップアップがブロックされました。ブラウザの設定を確認してください。"
+          );
         } else {
           setError(result.error || "Google認証に失敗しました");
         }
       }
-    } catch {
+    } catch (error) {
+      console.error("認証エラー:", error); // ← 追加
       setError("Google認証に失敗しました");
     } finally {
       setLoading(false);
@@ -109,7 +125,7 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
 
   // バリデーションエラーの表示用ヘルパー
   const getFieldError = (fieldName: string): string | undefined => {
-    const error = validationErrors.find(err => err.field === fieldName);
+    const error = validationErrors.find((err) => err.field === fieldName);
     return error?.message;
   };
 
@@ -120,7 +136,9 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
           {isLogin ? "ログイン" : "アカウント作成"}
         </h1>
         <p className="text-sm text-gray-600">
-          {isLogin ? "アカウントにログインしてください" : "新しいアカウントを作成してください"}
+          {isLogin
+            ? "アカウントにログインしてください"
+            : "新しいアカウントを作成してください"}
         </p>
       </CardHeader>
       <CardBody className="space-y-4">
@@ -132,8 +150,8 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
             onChange={(e) => setEmail(security.xss.filterXSS(e.target.value))}
             required
             disabled={loading}
-            isInvalid={!!getFieldError('email')}
-            errorMessage={getFieldError('email')}
+            isInvalid={!!getFieldError("email")}
+            errorMessage={getFieldError("email")}
           />
           <Input
             type="password"
@@ -143,10 +161,10 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
             required
             disabled={loading}
             minLength={8}
-            isInvalid={!!getFieldError('password')}
-            errorMessage={getFieldError('password')}
+            isInvalid={!!getFieldError("password")}
+            errorMessage={getFieldError("password")}
           />
-          
+
           {!isLogin && (
             <Input
               type="password"
@@ -156,15 +174,13 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
               required
               disabled={loading}
               minLength={8}
-              isInvalid={!!getFieldError('confirmPassword')}
-              errorMessage={getFieldError('confirmPassword')}
+              isInvalid={!!getFieldError("confirmPassword")}
+              errorMessage={getFieldError("confirmPassword")}
             />
           )}
-          
-          {error && (
-            <p className="text-sm text-red-600">{error}</p>
-          )}
-          
+
+          {error && <p className="text-sm text-red-600">{error}</p>}
+
           <Button
             type="submit"
             color="primary"
