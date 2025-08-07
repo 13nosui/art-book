@@ -91,16 +91,11 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
     setValidationErrors([]);
 
     try {
-      console.log("Google認証開始"); // ← 追加
       const result = await signInWithGoogle();
-      console.log("認証結果:", result); // ← 追加
 
       if (result.success) {
-        console.log("認証成功、onSuccessを呼び出し"); // ← 追加
         onSuccess?.();
       } else {
-        console.log("認証失敗:", result.code, result.error); // ← 追加
-        // より詳細なエラーメッセージを表示
         if (result.code === "auth/internal-error") {
           setError(
             "Google認証の設定に問題があります。管理者にお問い合わせください。"
@@ -115,8 +110,7 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
           setError(result.error || "Google認証に失敗しました");
         }
       }
-    } catch (error) {
-      console.error("認証エラー:", error); // ← 追加
+    } catch {
       setError("Google認証に失敗しました");
     } finally {
       setLoading(false);
