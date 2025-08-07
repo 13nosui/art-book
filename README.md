@@ -2,11 +2,6 @@
 
 このリポジトリは、**HeroUI** コンポーネントライブラリと **Next.js 15** を活用した AI 駆動サービス開発のためのモダンなテンプレートです。美しく一貫性のある UI と優れた開発体験を提供し、AI アプリケーションの迅速な構築を支援します。
 
-⚠️ 現在、環境変数バリデーションでエラーが出ますが、テンプレート開発段階のため無視しています。
-本番運用や実際のサービス開発時は、必ずご自身の環境に合わせて適切な値に置き換えてください。
-本番運用時や実際のサービス開発時には、必ずエラーを解消してください。
-本番運用の際は.gitignore で.env を適切に除外してください。
-
 ## ✨ 主な特徴
 
 - 🎨 **HeroUI**: 美しいデザインシステムとアクセシブルなコンポーネント
@@ -32,51 +27,26 @@ pnpm install
 
 ### 2. 環境変数設定
 
-⚠️ **重要**: このプロジェクトにはダミー値が設定された `.env` と `.env.example` ファイルが含まれています。  
-**本番環境にデプロイする前に、必ずすべてのダミー値を実際の認証情報に置き換えてください。**
-
-#### 開発環境のセットアップ
+`.env.example` ファイルを参考に、プロジェクトルートに `.env.local` ファイルを作成します。
 
 ```bash
-# .env.example を .env.local にコピー
+# .env.example を .env.local にコピーして開発環境を設定
 cp .env.example .env.local
-
-# または、既存の .env ファイルを使用
-cp .env .env.local
 ```
 
-#### 必要な環境変数の設定
-
-```env
-# Firebase設定（必須）
-NEXT_PUBLIC_FIREBASE_API_KEY=your-firebase-api-key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789012
-NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789012:web:abcdef1234567890abcdef
-
-# セキュリティ設定（必須）
-ENCRYPTION_KEY=12345678901234567890123456789012
-JWT_SECRET=jwt-secret-key-1234567890123456
-CSRF_SECRET=csrf-secret-key-1234567890123456
-SEMGREP_APP_TOKEN=your_actual_token_here
-
-# 外部サービス（オプション）
-FIGMA_ACCESS_TOKEN=figd_your-figma-access-token
-OPENAI_API_KEY=sk-your-openai-api-key-1234567890123456789012345678
-SENTRY_DSN=https://your-sentry-dsn@sentry.io/1234567
-```
+⚠️ **重要**: `.env.local` には開発用のプレースホルダー値が設定されています。
+**本番環境にデプロイする前に、必ずすべての値を実際の認証情報に置き換えてください。**
 
 #### 環境変数の検証
 
-```bash
-# 環境変数の設定を確認
-npm run env:check
+環境変数が正しく設定されているか、以下のコマンドで検証できます。
 
-# 詳細な検証を実行
-node scripts/validate-env.js
+```bash
+# 環境変数の設定を検証
+pnpm run env:validate
 ```
+
+開発環境では、プレースホルダー値が設定されている項目に対して警告が表示されますが、これは正常な動作です。本番環境でのデプロイ前には、これらの警告がすべて解消されていることを確認してください。
 
 ### 3. 開発サーバー起動
 

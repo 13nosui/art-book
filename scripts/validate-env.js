@@ -6,15 +6,31 @@
  */
 
 // .envファイルを読み込み
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(process.cwd(), '.env.local') });
 
 const fs = require('fs');
-const path = require('path');
 
 console.log('🔑 環境変数検証を開始します...\n');
 
 let hasErrors = false;
 let hasWarnings = false;
+
+const isProduction = process.env.NODE_ENV === 'production';
+
+// プレースホルダー値を定義
+const placeholders = {
+  NEXT_PUBLIC_FIREBASE_API_KEY: "your-firebase-api-key-12345678901234567890",
+  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: "your-project-id.firebaseapp.com",
+  NEXT_PUBLIC_FIREBASE_PROJECT_ID: "your-project-id",
+  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: "your-project-id.appspot.com",
+  ENCRYPTION_KEY: "a-very-strong-encryption-key-of-32-characters-or-more",
+  JWT_SECRET: "a-super-secret-jwt-key-16-chars-or-more",
+  CSRF_SECRET: "another-super-secret-csrf-key-16-chars-or-more",
+  FIGMA_ACCESS_TOKEN: "figd_your-figma-access-token-here",
+  OPENAI_API_KEY: "sk-your-openai-api-key-1234567890123456789012345678",
+  SENTRY_DSN: "https://1234567890abcdef1234567890abcdef@1234567.ingest.sentry.io/1234567",
+};
 
 // 必須環境変数の定義
 const requiredVars = {
@@ -23,45 +39,52 @@ const requiredVars = {
     required: true,
     pattern: /^[A-Za-z0-9_-]{30,}$/,
     description: 'Firebase API Key',
-    sensitive: false
+    sensitive: false,
+    isPlaceholder: (v) => v === placeholders.NEXT_PUBLIC_FIREBASE_API_KEY,
   },
   'NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN': {
     required: true,
     pattern: /^[a-z0-9-]+\.firebaseapp\.com$/,
     description: 'Firebase Auth Domain',
-    sensitive: false
+    sensitive: false,
+    isPlaceholder: (v) => v === placeholders.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
   },
   'NEXT_PUBLIC_FIREBASE_PROJECT_ID': {
     required: true,
     pattern: /^[a-z0-9-]+$/,
     description: 'Firebase Project ID',
-    sensitive: false
+    sensitive: false,
+    isPlaceholder: (v) => v === placeholders.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
   },
   'NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET': {
     required: true,
     pattern: /^[a-z0-9-]+\.appspot\.com$/,
     description: 'Firebase Storage Bucket',
-    sensitive: false
+    sensitive: false,
+    isPlaceholder: (v) => v === placeholders.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   },
 
   // セキュリティ関連（必須）
   'ENCRYPTION_KEY': {
     required: true,
-    pattern: /^[A-Za-z0-9]{32,}$/,
+    pattern: /^[A-Za-z0-9-]{32,}$/,
     description: 'Encryption Key (32+ characters)',
-    sensitive: true
+    sensitive: true,
+    isPlaceholder: (v) => v === placeholders.ENCRYPTION_KEY,
   },
   'JWT_SECRET': {
     required: true,
-    pattern: /^[A-Za-z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{16,}$/,
+    pattern: /^[A-Za-z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?-]{16,}$/,
     description: 'JWT Secret (16+ characters)',
-    sensitive: true
+    sensitive: true,
+    isPlaceholder: (v) => v === placeholders.JWT_SECRET,
   },
   'CSRF_SECRET': {
     required: true,
-    pattern: /^[A-Za-z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{16,}$/,
+    pattern: /^[A-Za-z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?-]{16,}$/,
     description: 'CSRF Secret (16+ characters)',
-    sensitive: true
+    sensitive: true,
+    isPlaceholder: (v) => v === placeholders.CSRF_SECRET,
   },
 
   // オプション環境変数
@@ -69,19 +92,22 @@ const requiredVars = {
     required: false,
     pattern: /^figd_[A-Za-z0-9_-]+$/,
     description: 'Figma Access Token',
-    sensitive: true
+    sensitive: true,
+    isPlaceholder: (v) => v === placeholders.FIGMA_ACCESS_TOKEN,
   },
   'OPENAI_API_KEY': {
     required: false,
-    pattern: /^sk-[A-Za-z0-9]{48}$/,
+    pattern: /^sk-[A-Za-z0-9-]{48}$/,
     description: 'OpenAI API Key',
-    sensitive: true
+    sensitive: true,
+    isPlaceholder: (v) => v === placeholders.OPENAI_API_KEY,
   },
   'SENTRY_DSN': {
     required: false,
     pattern: /^https:\/\/[a-f0-9]+@[a-f0-9]+\.ingest\.sentry\.io\/[0-9]+$/,
     description: 'Sentry DSN',
-    sensitive: true
+    sensitive: true,
+    isPlaceholder: (v) => v === placeholders.SENTRY_DSN,
   }
 };
 
@@ -127,14 +153,25 @@ function validateEnvironmentVariableFormats() {
   Object.entries(requiredVars).forEach(([varName, config]) => {
     const value = process.env[varName];
     
-    if (value && config.pattern) {
-      if (config.pattern.test(value)) {
-        const displayValue = config.sensitive ? '***[HIDDEN]***' : value;
-        console.log(`  ✅ ${varName}: ${displayValue} (形式OK)`);
-      } else {
+    if (value) {
+      if (config.isPlaceholder && config.isPlaceholder(value)) {
+        const message = `  ⚠️  ${varName}: プレースホルダー値が使用されています。本番環境では必ず実際の値に置き換えてください。`;
+        console.log(message);
+        hasWarnings = true;
+        if (isProduction) {
+            console.log(`  ❌ 本番環境ではプレースホルダー値は使用できません: ${varName}`);
+            hasErrors = true;
+        }
+        return;
+      }
+
+      if (config.pattern && !config.pattern.test(value)) {
         console.log(`  ❌ ${varName}: 形式が正しくありません (期待形式: ${config.pattern})`);
         formatErrors.push(varName);
         hasErrors = true;
+      } else {
+        const displayValue = config.sensitive ? '***[HIDDEN]***' : value;
+        console.log(`  ✅ ${varName}: ${displayValue} (形式OK)`);
       }
     }
   });
@@ -152,41 +189,35 @@ function checkSecurityStrength() {
   console.log('🔒 セキュリティ強度チェック');
   
   const securityChecks = [
-    {
-      name: 'ENCRYPTION_KEY',
-      minLength: 32,
-      description: '暗号化キーの長さ'
-    },
-    {
-      name: 'JWT_SECRET',
-      minLength: 32,
-      description: 'JWTシークレットの長さ'
-    },
-    {
-      name: 'CSRF_SECRET',
-      minLength: 32,
-      description: 'CSRFシークレットの長さ'
-    }
+    { name: 'ENCRYPTION_KEY', minLength: 32, description: '暗号化キーの長さ' },
+    { name: 'JWT_SECRET', minLength: 32, description: 'JWTシークレットの長さ' },
+    { name: 'CSRF_SECRET', minLength: 32, description: 'CSRFシークレットの長さ' }
   ];
   
   securityChecks.forEach(check => {
     const value = process.env[check.name];
+    const config = requiredVars[check.name];
+
     if (value) {
-      if (value.length >= check.minLength) {
-        console.log(`  ✅ ${check.name}: 十分な長さです (${value.length}文字)`);
-      } else {
+      if (config.isPlaceholder && config.isPlaceholder(value)) {
+        // プレースホルダーの場合はこのチェックをスキップ
+        return;
+      }
+
+      if (value.length < check.minLength) {
         console.log(`  ⚠️  ${check.name}: 長さが不十分です (${value.length}文字 < ${check.minLength}文字)`);
         hasWarnings = true;
+      } else {
+        console.log(`  ✅ ${check.name}: 十分な長さです (${value.length}文字)`);
       }
       
-      // エントロピーチェック（簡易版）
       const uniqueChars = new Set(value).size;
       const entropy = uniqueChars / value.length;
-      if (entropy > 0.6) {
-        console.log(`  ✅ ${check.name}: 十分な複雑さです`);
-      } else {
+      if (entropy < 0.6) {
         console.log(`  ⚠️  ${check.name}: 複雑さが不十分です（より多様な文字を使用してください）`);
         hasWarnings = true;
+      } else {
+        console.log(`  ✅ ${check.name}: 十分な複雑さです`);
       }
     }
   });
@@ -234,27 +265,28 @@ function checkEnvFilesSecurity() {
 
 // 本番環境の追加チェック
 function checkProductionEnvironment() {
-  const nodeEnv = process.env.NODE_ENV;
-  
-  if (nodeEnv === 'production') {
+  if (isProduction) {
     console.log('🚀 本番環境追加チェック');
     
-    // 必須の本番環境変数
-    const productionVars = [
-      'NEXT_PUBLIC_APP_URL',
-      'SENTRY_DSN'
-    ];
+    const productionVars = ['NEXT_PUBLIC_APP_URL', 'SENTRY_DSN'];
     
     productionVars.forEach(varName => {
-      if (!process.env[varName]) {
+      const value = process.env[varName];
+      const config = requiredVars[varName];
+
+      if (!value) {
         console.log(`  ⚠️  本番環境で推奨される環境変数が未設定: ${varName}`);
         hasWarnings = true;
       } else {
-        console.log(`  ✅ ${varName} が設定されています`);
+        if (config && config.isPlaceholder && config.isPlaceholder(value)) {
+          console.log(`  ❌ 本番環境ではプレースホルダー値は使用できません: ${varName}`);
+          hasErrors = true;
+        } else {
+          console.log(`  ✅ ${varName} が設定されています`);
+        }
       }
     });
     
-    // HTTP/HTTPSチェック
     const appUrl = process.env.NEXT_PUBLIC_APP_URL;
     if (appUrl && !appUrl.startsWith('https://')) {
       console.log('  ❌ 本番環境ではHTTPSを使用してください');
